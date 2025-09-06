@@ -1,0 +1,50 @@
+@import './variables.css';
+
+/* Global styles using CSS variables */
+.primary-bg {
+  background-color: var(--primary-color);
+}
+
+.primary-text {
+  color: var(--primary-color);
+}
+
+.primary-border {
+  border-color: var(--primary-color);
+}
+
+/* Utility classes for consistent theming */
+.btn-primary-custom {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-custom:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+/* Payment button - keep green color */
+.btn-payment {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-payment:hover {
+  background-color: #388e3c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}

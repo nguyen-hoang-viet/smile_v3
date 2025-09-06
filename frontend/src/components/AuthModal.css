@@ -1,0 +1,109 @@
+/* AuthModal specific styles */
+.auth-modal {
+  min-width: 400px;
+}
+
+.auth-modal-header {
+  position: relative;
+  padding: 24px;
+  background: linear-gradient(135deg, #f7b510 0%, #e65100 100%);
+  color: white;
+}
+
+.auth-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: white;
+  font-size: 24px;
+  padding: 8px;
+  min-width: auto;
+}
+
+.auth-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #333;
+}
+
+.error-message {
+  padding: 12px;
+  background-color: #ffebee;
+  color: #c62828;
+  border-radius: 8px;
+  border: 1px solid #ffcdd2;
+  font-size: 0.875rem;
+}
+
+.auth-switch {
+  padding: 16px 24px;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
+}
+
+.auth-switch p {
+  margin: 0;
+  color: #666;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #f7b510;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-left: 8px;
+}
+
+.link-btn:hover {
+  color: #e65100;
+}
+
+/* Animation for modal entrance */
+.modal-overlay {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.auth-modal {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

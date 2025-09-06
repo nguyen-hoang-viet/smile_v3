@@ -1,0 +1,177 @@
+.home {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 60px);
+}
+
+.table-grid {
+  flex: 1;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  overflow-y: auto;
+}
+
+.table-item {
+  width: 160px;
+  height: 160px;
+  border: 5px solid #333;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.table-item:hover {
+  background-color: #f0f0f0;
+}
+
+.table-item.selected {
+  border-color: #f7b510;
+  background-color: #fff8e1;
+}
+
+.table-item.ordered {
+  background-color: #fff8e1;
+  border-color: #f7b510;
+}
+
+.table-item.takeaway {
+  background-color: #f7b510;
+}
+
+.order-panel {
+  flex: 1;
+  padding: 20px;
+  border-left: 1px solid #ccc;
+  overflow-y: auto;
+}
+
+.order-title {
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+
+.table-number {
+  color: red;
+}
+
+.dish-search {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  position: absolute;
+  width: calc(50% - 40px);
+  z-index: 1000;
+}
+
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:hover {
+  background-color: #f0f0f0;
+}
+
+.order-items {
+  margin-top: 20px;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.order-item-name {
+  flex: 1;
+  font-weight: bold;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #333;
+  background: white;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.quantity-input {
+  width: 50px;
+  text-align: center;
+  border: 1px solid #ddd;
+  padding: 5px;
+}
+
+.remove-btn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.action-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #f7b510;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #666;
+  color: white;
+}

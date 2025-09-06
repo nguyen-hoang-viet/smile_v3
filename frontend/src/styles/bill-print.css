@@ -1,0 +1,80 @@
+/* Print styles for thermal bill printing */
+@media print {
+  /* Hide everything except the bill */
+  body * {
+    visibility: hidden;
+  }
+  
+  /* Show only the bill content */
+  .bill-print, .bill-print * {
+    visibility: visible;
+  }
+  
+  /* Position the bill at the top */
+  .bill-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0 !important;
+    padding: 2mm !important;
+    width: 80mm !important;
+    background: white !important;
+  }
+  
+  /* Remove shadows and borders for printing */
+  .bill-print,
+  .bill-print * {
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Ensure proper font sizes for thermal printer */
+  .bill-print .bill-header {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    margin-bottom: 3mm !important;
+  }
+  
+  .bill-print .bill-info {
+    font-size: 10px !important;
+    margin-bottom: 2mm !important;
+  }
+  
+  .bill-print .bill-items {
+    font-size: 9px !important;
+    margin-bottom: 2mm !important;
+  }
+  
+  .bill-print .bill-total {
+    font-size: 11px !important;
+    font-weight: bold !important;
+    margin-top: 2mm !important;
+  }
+  
+  .bill-print .bill-footer {
+    font-size: 8px !important;
+    text-align: center !important;
+    margin-top: 3mm !important;
+  }
+  
+  /* Ensure dividers print correctly */
+  .bill-print hr,
+  .bill-print .MuiDivider-root {
+    border-top: 1px dashed black !important;
+    margin: 1mm 0 !important;
+  }
+  
+  /* Page settings */
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+  
+  /* Remove page breaks within bill */
+  .bill-print {
+    page-break-inside: avoid;
+  }
+}
