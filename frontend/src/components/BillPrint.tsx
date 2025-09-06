@@ -31,6 +31,7 @@ const BillPrint: React.FC<BillPrintProps> = ({
     time,
     billNumber = `${Date.now()}`
     }) => {
+    
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
@@ -210,8 +211,36 @@ const BillPrint: React.FC<BillPrintProps> = ({
             <Typography sx={{ fontSize: { xs: '8px', sm: '10px' }, mb: 1 }}>
             Cảm ơn quý khách!
             </Typography>
-            <Typography sx={{ fontSize: { xs: '8px', sm: '10px' }, mb: 0.5 }}>
+            <Typography sx={{ fontSize: { xs: '8px', sm: '10px' }, mb: 1 }}>
             Hẹn gặp lại!
+            </Typography>
+            
+            {/* QR Code thanh toán */}
+            <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                mt: 1,
+                mb: 1 
+            }}>
+                <img 
+                    src="/images/qr-payment.jpg"
+                    alt="QR Thanh toán"
+                    style={{
+                        width: '60px',
+                        height: '60px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px'
+                    }}
+                    onError={(e) => {
+                        // Ẩn hình nếu không tìm thấy file
+                        (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                />
+            </Box>
+            
+            <Typography sx={{ fontSize: { xs: '7px', sm: '9px' }, color: '#666' }}>
+                Quét mã QR để thanh toán
             </Typography>
         </Box>
 

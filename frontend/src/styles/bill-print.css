@@ -60,6 +60,16 @@
     margin-top: 3mm !important;
   }
   
+  /* QR Code image styles for printing */
+  .bill-print img {
+    max-width: 50px !important;
+    max-height: 50px !important;
+    margin: 1mm auto !important;
+    display: block !important;
+    border: 1px solid #ddd !important;
+    border-radius: 2px !important;
+  }
+  
   /* Ensure dividers print correctly */
   .bill-print hr,
   .bill-print .MuiDivider-root {
