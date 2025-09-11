@@ -267,130 +267,119 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
       flexDirection: 'column',
       overflow: 'hidden' // Ngăn container chính overflow
     }}>
-      {/* Header chỉ hiển thị trên desktop, mobile đã có header riêng */}
-      {!isMobile && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          style={{ flexShrink: 0 }} // Không cho phép shrink
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{ flexShrink: 0 }} // Không cho phép shrink
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            p: 1.5, // Giảm padding
+            mb: 1.5, // Giảm margin bottom
+            background: 'linear-gradient(135deg, #f7b510 0%, #e65100 100%)',
+            color: '#fff',
+            borderRadius: 2,
+            boxShadow: '0 4px 12px rgba(245, 127, 23, 0.3)',
+          }}
         >
-          <Paper
-            elevation={0}
-            sx={{
-              p: 1.5, // Giảm padding
-              mb: 1.5, // Giảm margin bottom
-              background: 'linear-gradient(135deg, #f7b510 0%, #e65100 100%)',
-              color: '#fff',
-              borderRadius: 2,
-              boxShadow: '0 4px 12px rgba(245, 127, 23, 0.3)',
-            }}
-          >
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between', 
-              mb: 0.5,
-              minHeight: 40 // Đảm bảo có chiều cao tối thiểu
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Restaurant sx={{ color: '#fff', fontSize: 20 }} />
-                <Typography variant="h6" sx={{ 
-                  fontWeight: 600, 
-                  color: '#fff',
-                  fontSize: '1.5rem', // Giảm kích thước font
-                  lineHeight: 1.2 // Thêm line height chuẩn
-                }}>
-                  {table.name}
-                </Typography>
-              </Box>
-              {table.isOrdered && (
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  gap: 1,
-                  height: '100%' // Chiếm toàn bộ chiều cao của container
-                }}>
-                  <Chip 
-                    label={`${table.orders.reduce((total, order) => total + order.quantity, 0)} món`}
-                    sx={{ 
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      color: '#e65100',
-                      fontWeight: 700,
-                      height: 36,
-                      borderRadius: '18px',
-                      '& .MuiChip-label': {
-                        px: 2,
-                        py: 0,
-                        fontSize: '1.1rem',
-                        fontWeight: 700,
-                        lineHeight: '36px', // Căn giữa bằng line-height = height
-                        display: 'block',
-                        textAlign: 'center'
-                      }
-                    }}
-                  />
-                  {/* Pending changes indicator */}
-                  {hasPendingChanges && (
-                    <Chip 
-                      label={isSavingPending ? "Đang lưu..." : `${pendingChangesCount} chưa lưu`}
-                      onClick={handleManualSave}
-                      disabled={isSavingPending}
-                      sx={{ 
-                        backgroundColor: isSavingPending ? 'rgba(33, 150, 243, 0.9)' : 'rgba(255, 193, 7, 0.9)',
-                        color: isSavingPending ? '#fff' : '#333',
-                        fontWeight: 600,
-                        height: 32,
-                        borderRadius: '16px',
-                        cursor: isSavingPending ? 'default' : 'pointer',
-                        border: `2px solid ${isSavingPending ? 'rgba(33, 150, 243, 0.5)' : 'rgba(255, 193, 7, 0.5)'}`,
-                        transition: 'all 0.2s ease-in-out',
-                        animation: isSavingPending ? 'none' : 'pulse 2s infinite',
-                        '&:hover': !isSavingPending ? {
-                          backgroundColor: 'rgba(255, 193, 7, 1)',
-                          border: '2px solid rgba(255, 193, 7, 0.8)',
-                          transform: 'scale(1.05)',
-                          boxShadow: '0 2px 8px rgba(255, 193, 7, 0.4)',
-                        } : {},
-                        '&:active': !isSavingPending ? {
-                          transform: 'scale(0.98)',
-                        } : {},
-                        '&.Mui-disabled': {
-                          opacity: 0.8,
-                        },
-                        '& .MuiChip-label': {
-                          px: 1.5,
-                          fontSize: '0.85rem',
-                          fontWeight: 700,
-                        },
-                        '@keyframes pulse': {
-                          '0%': {
-                            boxShadow: '0 0 0 0 rgba(255, 193, 7, 0.7)',
-                          },
-                          '70%': {
-                            boxShadow: '0 0 0 4px rgba(255, 193, 7, 0)',
-                          },
-                          '100%': {
-                            boxShadow: '0 0 0 0 rgba(255, 193, 7, 0)',
-                          },
-                        },
-                      }}
-                      title={isSavingPending ? "Đang lưu..." : "Click để lưu ngay"} // Tooltip
-                    />
-                  )}
-                </Box>
-              )}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            mb: 0.5,
+            minHeight: 40 // Đảm bảo có chiều cao tối thiểu
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Restaurant sx={{ color: '#fff', fontSize: 20 }} />
+              <Typography variant="h6" sx={{ 
+                fontWeight: 600, 
+                color: '#fff',
+                fontSize: '1.5rem', // Giảm kích thước font
+                lineHeight: 1.2 // Thêm line height chuẩn
+              }}>
+                {table.name}
+              </Typography>
             </Box>
-            <Typography variant="body2" sx={{ 
-              opacity: 0.9, 
-              color: '#fff',
-              fontSize: '1.0rem' // Giảm kích thước font
-            }}>
-              Nhập món cho bàn này
-            </Typography>
-          </Paper>
-        </motion.div>
-      )}
+            {table.isOrdered && (
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                gap: 1,
+                height: '100%' // Chiếm toàn bộ chiều cao của container
+              }}>
+                <Chip 
+                  label={`${table.orders.reduce((total, order) => total + order.quantity, 0)} món`}
+                  sx={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    color: '#e65100',
+                    fontWeight: 700,
+                    height: 36,
+                    borderRadius: '18px',
+                    '& .MuiChip-label': {
+                      px: 2,
+                      py: 0,
+                      fontSize: '1.1rem',
+                      fontWeight: 700,
+                      lineHeight: '36px', // Căn giữa bằng line-height = height
+                      display: 'block',
+                      textAlign: 'center'
+                    }
+                  }}
+                />
+                {hasPendingChanges && (
+                  <Chip 
+                    label={isSavingPending ? "Đang lưu..." : `${pendingChangesCount} chưa lưu`}
+                    onClick={handleManualSave}
+                    disabled={isSavingPending}
+                    sx={{ 
+                      backgroundColor: isSavingPending ? 'rgba(33, 150, 243, 0.9)' : 'rgba(255, 193, 7, 0.9)',
+                      color: isSavingPending ? '#fff' : '#333',
+                      fontWeight: 600,
+                      height: 32,
+                      borderRadius: '16px',
+                      cursor: isSavingPending ? 'default' : 'pointer',
+                      border: `2px solid ${isSavingPending ? 'rgba(33, 150, 243, 0.5)' : 'rgba(255, 193, 7, 0.5)'}`,
+                      transition: 'all 0.2s ease-in-out',
+                      animation: isSavingPending ? 'none' : 'pulse 2s infinite',
+                      '&:hover': !isSavingPending ? {
+                        backgroundColor: 'rgba(255, 193, 7, 1)',
+                        border: '2px solid rgba(255, 193, 7, 0.8)',
+                        transform: 'scale(1.05)',
+                        boxShadow: '0 2px 8px rgba(255, 193, 7, 0.4)',
+                      } : {},
+                      '&:active': !isSavingPending ? {
+                        transform: 'scale(0.98)',
+                      } : {},
+                      '&.Mui-disabled': {
+                        opacity: 0.8,
+                      },
+                      '& .MuiChip-label': {
+                        px: 1.5,
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                      },
+                      '@keyframes pulse': {
+                        '0%': {
+                          boxShadow: '0 0 0 0 rgba(255, 193, 7, 0.7)',
+                        },
+                        '70%': {
+                          boxShadow: '0 0 0 4px rgba(255, 193, 7, 0)',
+                        },
+                        '100%': {
+                          boxShadow: '0 0 0 0 rgba(255, 193, 7, 0)',
+                        },
+                      },
+                    }}
+                    title={isSavingPending ? "Đang lưu..." : "Click để lưu ngay"} // Tooltip
+                  />
+                )}
+              </Box>
+            )}
+          </Box>
+        </Paper>
+      </motion.div>
 
       <Box sx={{ mb: isMobile ? 1 : 2, flexShrink: 0 }}>
         <DishSearch
@@ -405,7 +394,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
         flex: 1, 
         overflow: 'auto', 
         mb: 1,
-        minHeight: 0 // Cho phép shrink khi cần thiết
+        minHeight: 0
       }}>
         <OrderItemList
           orders={table.orders}
@@ -426,19 +415,20 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
             <Paper 
               elevation={2} 
               sx={{ 
-                mb: 0.5, // Giảm margin bottom xuống còn 0.5
-                p: isMobile ? 1 : 1.5, // Giảm padding
+                mb: 0.5,
+                p: isMobile ? 1 : 1.5,
                 background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
                 border: '1px solid #e0e0e0',
                 borderRadius: 2,
-                flexShrink: 0 // Không cho phép shrink
+                flexShrink: 0
               }}
             >
+              {/* ===== THAY ĐỔI 1: Sửa flexDirection thành 'row' cho cả mobile ===== */}
               <Box sx={{ 
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center',
-                flexDirection: isMobile ? 'column' : 'row',
+                flexDirection: 'row', // Luôn là hàng ngang
                 gap: isMobile ? 1 : 0
               }}>
                 <Typography 
@@ -449,12 +439,12 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
                     gap: 1,
                     fontWeight: 700,
                     color: '#333',
-                    fontSize: isMobile ? '1rem' : '1.2rem' // Giảm kích thước font
+                    fontSize: isMobile ? '1rem' : '1.2rem'
                   }}
                 >
                   <Receipt sx={{ 
                     color: 'primary.main', 
-                    fontSize: isMobile ? 18 : 22 // Giảm kích thước icon
+                    fontSize: isMobile ? 18 : 22
                   }} />
                   Tổng tiền:
                 </Typography>
@@ -464,7 +454,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
                   sx={{ 
                     fontWeight: 800, 
                     color: '#f7b510',
-                    fontSize: isMobile ? '1.1rem' : '1.4rem' // Giảm kích thước font
+                    fontSize: isMobile ? '1.1rem' : '1.4rem'
                   }}
                 >
                   {formatCurrency(calculateSubtotal())}
@@ -475,13 +465,14 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
         )}
       </AnimatePresence>
 
+      {/* ===== THAY ĐỔI 2: Sửa direction thành 'row' cho cả mobile ===== */}
       <Stack 
-        direction={isMobile ? "column" : "row"} 
-        spacing={isMobile ? 0.8 : 1.5} // Giảm spacing
+        direction="row" // Luôn là hàng ngang
+        spacing={isMobile ? 0.8 : 1.5}
         sx={{ 
           mt: 'auto',
-          flexShrink: 0, // Không cho phép shrink
-          pt: 0.5 // Giảm padding top
+          flexShrink: 0,
+          pt: 0.5
         }}
       >
         <Button
@@ -489,14 +480,14 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
           startIcon={!isMobile && <Payment />}
           onClick={handlePayment}
           disabled={table.orders.length === 0}
-          size={isMobile ? "medium" : "medium"} // Giảm từ large xuống medium
+          size="medium"
           sx={{ 
-            flex: 1,
+            flex: 1, // Nút này sẽ chiếm phần lớn không gian
             backgroundColor: '#4caf50',
             '&:hover': {
               backgroundColor: '#388e3c',
             },
-            py: isMobile ? 1 : 0.8 // Giảm padding vertical
+            py: isMobile ? 1 : 0.8
           }}
         >
           Thanh toán
@@ -506,10 +497,10 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
           startIcon={!isMobile && <Visibility />}
           onClick={handleView}
           disabled={table.orders.length === 0}
-          size={isMobile ? "medium" : "medium"} // Giảm từ large xuống medium
+          size="medium"
           sx={{ 
-            flex: isMobile ? 1 : 'auto',
-            py: isMobile ? 1 : 0.8 // Giảm padding vertical
+            flex: 'auto', // Nút này sẽ co lại theo nội dung
+            py: isMobile ? 1 : 0.8
           }}
         >
           Xem
@@ -542,7 +533,6 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
             </Box>
             
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {/* Giảm giá */}
               <Box>
                 <Typography variant="subtitle2" sx={{ mb: 1 }} fontWeight={600}>Giảm giá</Typography>
                 <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
@@ -573,7 +563,6 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
                 />
               </Box>
 
-              {/* Phí ship */}
               <Box>
                 <Typography variant="subtitle2" sx={{ mb: 1 }} fontWeight={600}>Phí giao hàng</Typography>
                 <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
@@ -610,7 +599,6 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
               </Box>
             </Box>
             
-            {/* Hiển thị discount amount */}
             {getDiscountAmount() > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between', color: 'error.main' }}>
                 <Typography>Giảm giá:</Typography>
@@ -618,7 +606,6 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
               </Box>
             )}
             
-            {/* Hiển thị shipping fee */}
             {shippingFee > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography>Phí giao hàng:</Typography>
@@ -665,7 +652,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
         open={billDialogOpen}
         onClose={() => {
           setBillDialogOpen(false);
-          setLastBillInfo(null); // Reset khi đóng dialog
+          setLastBillInfo(null);
         }}
         maxWidth={isMobile ? "sm" : "md"}
         fullWidth
@@ -735,7 +722,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
           <Button 
             onClick={() => {
               setBillDialogOpen(false);
-              setLastBillInfo(null); // Reset khi đóng dialog
+              setLastBillInfo(null);
             }}
             variant="outlined"
             fullWidth={isMobile}
@@ -748,7 +735,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
             startIcon={<Print />}
             fullWidth={isMobile}
             sx={{
-              backgroundColor: '#9c27b0', // Màu tím khác màu chủ đạo
+              backgroundColor: '#9c27b0',
               '&:hover': {
                 backgroundColor: '#7b1fa2',
               }

@@ -5,7 +5,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Chip,
   useTheme,
   useMediaQuery,
   Dialog,
@@ -28,7 +27,7 @@ interface OrderItemListProps {
   orders: OrderItem[];
   onUpdateQuantity: (dishId: string, quantity: number) => void;
   onRemoveItem: (dishId: string) => void;
-  onUpdateNote?: (dishId: string, note: string) => void; // Thêm callback cho note
+  onUpdateNote?: (dishId: string, note: string) => void;
 }
 
 const OrderItemList: React.FC<OrderItemListProps> = ({
@@ -138,28 +137,13 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
                   justifyContent: 'space-between', 
                   alignItems: isMobile ? 'flex-start' : 'center',
                   flexDirection: isMobile ? 'column' : 'row',
-                  gap: isMobile ? 1 : 0
+                  gap: isMobile ? 1.5 : 0
                 }}>
-                  {/* Thông tin món ăn */}
+                  {/* ===== THAY ĐỔI Ở ĐÂY: Chỉ giữ lại tên món ===== */}
                   <Box sx={{ flex: 1, mr: isMobile ? 0 : 2, width: '100%' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, fontSize: isMobile ? '1.1rem' : '1.2rem' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: isMobile ? '1.1rem' : '1.2rem' }}>
                       {order.dish.name}
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: isMobile ? 1 : 0 }}>
-                      <Chip
-                        label={order.dish.id}
-                        size="small"
-                        variant="outlined"
-                        sx={{ 
-                          fontSize: '0.75rem',
-                          borderColor: 'primary.main',
-                          color: 'primary.main'
-                        }}
-                      />
-                      <Typography variant="body1" color="primary" sx={{ fontWeight: 600, fontSize: '1rem' }}>
-                        {formatCurrency(order.dish.price)}
-                      </Typography>
-                    </Box>
                   </Box>
 
                   {/* Control và giá */}
@@ -173,7 +157,7 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
                     {/* Note field */}
                     <Box sx={{ flex: isMobile ? 1 : 2, mr: isMobile ? 1 : 2 }}>
                       <TextField
-                        size="medium"
+                        size="small"
                         placeholder="Ghi chú..."
                         value={order.note || ''}
                         onChange={(e) => handleNoteChange(order.dish.id, e.target.value)}
@@ -199,10 +183,9 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
                       />
                     </Box>
 
-                    {/* Số lượng " */}
+                    {/* Số lượng */}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       {isMobile ? (
-                        /* Mobile: Click để mở dialog chọn số lượng */
                         <Box
                           onClick={() => handleMobileQuantityClick(order.dish.id, order.quantity)}
                           sx={{
@@ -226,7 +209,6 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
                           </Typography>
                         </Box>
                       ) : (
-                        /* Desktop: Nút tăng/giảm */
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <IconButton
                             size="small"

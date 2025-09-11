@@ -209,10 +209,10 @@ const BillPrint: React.FC<BillPrintProps> = ({
         {/* Footer */}
         <Box className="bill-footer" sx={{ textAlign: 'center', mb: 1 }}>
             <Typography sx={{ fontSize: { xs: '8px', sm: '10px' }, mb: 1 }}>
-            Cảm ơn quý khách!
+            Smile xin chân thành cảm ơn quý khách!
             </Typography>
             <Typography sx={{ fontSize: { xs: '8px', sm: '10px' }, mb: 1 }}>
-            Hẹn gặp lại!
+            Hẹn gặp lại vào!
             </Typography>
             
             {/* QR Code thanh toán */}

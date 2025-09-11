@@ -27,7 +27,12 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins = [
+        "https://smile-v3-fe.vercel.app",
+        "https://smile-v3-fe-git-main-vietnh55s-projects.vercel.app",
+        "http://localhost:3000", "http://127.0.0.1:3000",
+        "http://localhost:5173", "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,11 +43,12 @@ app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(redis_routes.router, prefix="/api/redis", tags=["redis"])
 
+
 @app.get("/")
 async def root():
     return {"message": "SMILE Restaurant Management API"}
 
-@app.get("/health")
+@app.get("/api/health", tags=["health"])
 async def health_check():
     return {"status": "healthy"}
 

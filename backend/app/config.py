@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = "Hoangviet1905/"
     DB_NAME: str = "postgres"
     DB_PORT: int = 6543
-    
+    DATABASE_URL: str = "postgresql://postgres.jdzbcdhrwbxvesejjten:Hoangviet1905/@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres"
+
     # Redis settings
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { OrderItem, Report, BillData, OrderRequest, OrderResponse } from '../types';
+import { OrderRequest, OrderResponse } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
@@ -37,6 +37,8 @@ export const orderAPI = {
   getOrdersByTable: (tableId: number): Promise<{ data: OrderResponse[] }> => 
     api.get(`/orders/table/${tableId}`),
 };
+
+
 
 export const reportAPI = {
   // Get all reports

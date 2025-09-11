@@ -1,0 +1,20 @@
+# .dockerignore
+
+# Môi trường ảo
+venv/
+.venv/
+env/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE/Editor folders
+.vscode/
+.idea/
+
+# Git folder
+.git
