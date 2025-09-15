@@ -57,17 +57,31 @@ const ReportPage: React.FC = () => {
     fetchReports();
   }, []);
 
+  // const fetchReports = async () => {
+  //   try {
+  //     const response = await reportAPI.getAllReports();
+  //     setReports(response.data);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error('Error fetching reports:', error);
+  //     setReports([]); // Set empty array on error
+  //     setLoading(false);
+  //   }
+  // };
+
   const fetchReports = async () => {
-    try {
-      const response = await reportAPI.getAllReports();
-      setReports(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      setReports([]); // Set empty array on error
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    const { data } = await reportAPI.getAllReports();
+    setReports(data);
+  } catch (err) {
+    console.error('Error fetching reports:', err);
+    setReports([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Xử lý dữ liệu cho biểu đồ cột (doanh thu theo ngày)
   const getRevenueByDate = () => {

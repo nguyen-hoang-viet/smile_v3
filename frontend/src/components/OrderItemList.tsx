@@ -122,7 +122,7 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
             style={{ overflow: 'hidden' }}
           >
             <Card sx={{ 
-              mb: isMobile ? 1 : 2, 
+              mb: 1,
               overflow: 'visible',
               border: '2px solid #f0f0f0',
               borderRadius: 3,
@@ -131,7 +131,7 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
               }
             }}>
-              <CardContent sx={{ p: isMobile ? 2 : 3, '&:last-child': { pb: isMobile ? 2 : 3 } }}>
+              <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
                 <Box sx={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
@@ -139,7 +139,6 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
                   flexDirection: isMobile ? 'column' : 'row',
                   gap: isMobile ? 1.5 : 0
                 }}>
-                  {/* ===== THAY ĐỔI Ở ĐÂY: Chỉ giữ lại tên món ===== */}
                   <Box sx={{ flex: 1, mr: isMobile ? 0 : 2, width: '100%' }}>
                     <Typography variant="h6" sx={{ fontWeight: 600, fontSize: isMobile ? '1.1rem' : '1.2rem' }}>
                       {order.dish.name}
@@ -167,7 +166,8 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
                           '& .MuiOutlinedInput-root': {
                             borderRadius: 2,
                             backgroundColor: '#f8f9fa',
-                            fontSize: isMobile ? '0.8rem' : '0.9rem',
+                            // ===== THAY ĐỔI Ở ĐÂY: Tăng font-size lên 1rem (16px) =====
+                            fontSize: '1rem',
                             '&:hover': {
                               backgroundColor: '#fff',
                             },
@@ -175,8 +175,9 @@ const OrderItemList: React.FC<OrderItemListProps> = ({
                               backgroundColor: '#fff',
                             }
                           },
+                          // ===== THAY ĐỔI Ở ĐÂY: Tăng font-size của placeholder =====
                           '& .MuiInputBase-input::placeholder': {
-                            fontSize: isMobile ? '0.8rem' : '0.9rem',
+                            fontSize: '1rem',
                             opacity: 0.7
                           }
                         }}

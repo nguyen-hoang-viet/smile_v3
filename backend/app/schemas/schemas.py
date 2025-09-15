@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from typing import List
 
 # Order schemas
 class OrderBase(BaseModel):
@@ -62,3 +63,6 @@ class AddReportRequest(BaseModel):
     totalCheck: float
     shipFee: float
     discountCheck: float
+
+class AddReportRequestBatch(BaseModel):
+    reports: List[AddReportRequest]

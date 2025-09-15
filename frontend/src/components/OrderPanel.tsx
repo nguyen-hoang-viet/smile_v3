@@ -261,7 +261,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
 
   return (
     <Box sx={{ 
-      p: isMobile ? 1 : 2, 
+      p: 1, 
       height: isMobile ? 'calc(100vh - 60px)' : 'calc(100vh - 60px)', // Đồng nhất chiều cao
       display: 'flex', 
       flexDirection: 'column',
@@ -276,8 +276,8 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
         <Paper
           elevation={0}
           sx={{
-            p: 1.5, // Giảm padding
-            mb: 1.5, // Giảm margin bottom
+            p: 1.25,
+            mb: 1, 
             background: 'linear-gradient(135deg, #f7b510 0%, #e65100 100%)',
             color: '#fff',
             borderRadius: 2,
@@ -381,7 +381,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
         </Paper>
       </motion.div>
 
-      <Box sx={{ mb: isMobile ? 1 : 2, flexShrink: 0 }}>
+      <Box sx={{ mb: 1, flexShrink: 0 }}>
         <DishSearch
           searchTerm={searchTerm}
           onSearchChange={handleSearchTermChange}
