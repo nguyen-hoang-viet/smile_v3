@@ -311,46 +311,39 @@ const Home: React.FC = () => {
 
   // Thanh toán
   const handleCompletePayment = async (tableId: number) => {
-    try {
-      console.log(`💳 Processing payment for table ${tableId}`);
-      
-      // Lưu tất cả pending changes trước khi thanh toán
-      await savePendingChanges(tableId);
-      console.log(`✅ Saved pending changes for table ${tableId}`);
-      
-      // Xóa tất cả order của bàn từ database
-      const table = tables.find(t => t.id === tableId);
-      if (table && table.orders.length > 0) {
-        console.log(`🗑️ Deleting ${table.orders.length} orders from database`);
-        
-        const deletePromises = table.orders.map(order => 
-          orderAPI.deleteOrder(tableId, order.dish.name).catch(error => {
-            console.warn(`Failed to delete ${order.dish.name}:`, error);
-            // Don't fail the entire payment for individual delete failures
-            return null;
-          })
-        );
-        
-        await Promise.allSettled(deletePromises);
-        console.log(`✅ Completed order deletion for table ${tableId}`);
-      }
-      
-      // Cập nhật local state
-      setTables(prevTables =>
+    console.log(`💳 Bắt đầu xử lý thanh toán cho bàn ${tableId}`);
+
+    // --- OPTIMISTIC UI: Cập nhật state ngay lập tức ---
+    setTables(prevTables =>
         prevTables.map(table =>
-          table.id === tableId
-            ? { ...table, orders: [], isOrdered: false }
-            : table
+            table.id === tableId
+                ? { ...table, orders: [], isOrdered: false }
+                : table
         )
-      );
-      
-      console.log(`✅ Payment completed for table ${tableId}`);
+    );
+    console.log(`✅ UI Đã được cập nhật cho bàn ${tableId}`);
+
+    // --- LOGIC NỀN: Lưu pending changes và xóa đơn hàng ---
+    try {
+        // 1. Lưu các thay đổi đang chờ (nếu có)
+        await savePendingChanges(tableId);
+        console.log(`✅ Đã lưu pending changes cho bàn ${tableId} (nền)`);
+
+        // 2. Gọi API xóa tất cả đơn hàng của bàn
+        // Giả sử bạn đã tạo hàm orderAPI.deleteOrdersByTable
+        await orderAPI.deleteOrdersByTable(tableId);
+        console.log(`✅ Đã xóa đơn hàng trên server cho bàn ${tableId} (nền)`);
+
     } catch (error) {
-      console.error('❌ Error completing payment:', error);
-      // Không throw error ở đây để OrderPanel có thể hiển thị thông báo thành công
-      throw error;
+        // XỬ LÝ LỖI: Nếu API thất bại, thông báo cho người dùng
+        console.error('❌ Lỗi khi dọn bàn trên server:', error);
+        // Thông báo cho người dùng rằng có lỗi xảy ra.
+        // Cân nhắc việc reload lại dữ liệu từ server để đồng bộ lại
+        // trạng thái đúng, vì UI đang hiển thị bàn trống nhưng thực tế
+        // server vẫn còn đơn hàng.
+        alert(`Lỗi khi dọn bàn ${tableId}. Vui lòng tải lại trang để đảm bảo dữ liệu chính xác.`);
     }
-  };
+};
 
   if (loading) {
     return (

@@ -149,66 +149,74 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
 
   const handleFinalConfirmPayment = async () => {
     setIsProcessingPayment(true);
-    
-    // Lưu thông tin bill trước khi thanh toán
+
     const currentDateTime = getCurrentDateTime();
     const billInfo = {
-      orders: [...table.orders], // Copy orders
-      discount: getDiscountAmount(),
-      shippingFee: shippingFee,
-      subtotal: calculateSubtotal(),
-      total: calculateTotal(),
-      date: currentDateTime.date,
-      time: currentDateTime.time,
-      billNumber: `HD${table.id}${Date.now().toString().slice(-6)}`
+        orders: [...table.orders],
+        discount: getDiscountAmount(),
+        shippingFee: shippingFee,
+        subtotal: calculateSubtotal(),
+        total: calculateTotal(),
+        date: currentDateTime.date,
+        time: currentDateTime.time,
+        billNumber: `HD${table.id}${Date.now().toString().slice(-6)}`
     };
+    
+    // --- OPTIMISTIC UI: Cập nhật giao diện ngay lập tức ---
+    // 1. Đóng các dialog
+    setPaymentDialogOpen(false);
+    setConfirmPaymentDialogOpen(false);
+    
+    // 2. Lưu thông tin bill để hiển thị hóa đơn
     setLastBillInfo(billInfo);
     
+    // 3. Hiển thị dialog hóa đơn
+    setBillDialogOpen(true);
+    
+    // 4. Reset state
+    setDiscount(0);
+    setShippingFee(0);
+
+    // 5. Gọi hàm xử lý logic nền (không cần await)
+    //    Hàm này sẽ tự xử lý API và cập nhật state cuối cùng
+    onCompletePayment(table.id);
+
     try {
-      // Lưu từng món vào bảng report nhưng total, discount, ship_fee giống nhau cho tất cả món
-      const totalBill = calculateTotal(); // Tổng bill cuối cùng
-      const totalDiscount = getDiscountAmount(); // Tổng giảm giá
-      const totalShipFee = shippingFee; // Tổng phí ship
-      
-      for (const order of table.orders) {
-        const reportData = {
-          tableNumber: table.id,
-          date: currentDateTime.date,
-          time: currentDateTime.time,
-          code: order.dish.id, // Mã món (VD: "TV", "KB")
-          nameDish: order.dish.name,
-          quantity: order.quantity,
-          totalCheck: totalBill, // Tổng bill giống nhau cho tất cả món
-          shipFee: totalShipFee, // Phí ship giống nhau cho tất cả món
-          discountCheck: totalDiscount, // Giảm giá giống nhau cho tất cả món
-        };
-        
-        await reportAPI.addReport(reportData);
-      }
-      
-      console.log('✅ Đã lưu thông tin thanh toán vào báo cáo thành công');
-      
-      // Gọi payment handler
-      await onCompletePayment(table.id);
-      
-      // Đóng dialog và hiển thị thông báo thành công
-      setPaymentDialogOpen(false);
-      setConfirmPaymentDialogOpen(false);
-      
-      // Hiển thị bill dialog sau khi thanh toán
-      setBillDialogOpen(true);
-      setDiscount(0);
-      setShippingFee(0);
-      
-      alert('Thanh toán thành công!');
-      
+        // --- LOGIC NỀN: Gửi dữ liệu đi trong khi UI đã cập nhật ---
+        console.log('🚀 Bắt đầu gửi báo cáo hàng loạt...');
+
+        // 1. Chuẩn bị dữ liệu báo cáo hàng loạt
+        const reportDataBatch = billInfo.orders.map(order => ({
+            tableNumber: table.id,
+            date: billInfo.date,
+            time: billInfo.time,
+            code: order.dish.id,
+            nameDish: order.dish.name,
+            quantity: order.quantity,
+            totalCheck: billInfo.total,
+            shipFee: billInfo.shippingFee,
+            discountCheck: billInfo.discount,
+        }));
+
+        // 2. Gọi API batch một lần duy nhất
+        if (reportDataBatch.length > 0) {
+            // Giả sử bạn đã tạo hàm reportAPI.addReportBatch
+            await reportAPI.addReportBatch({ reports: reportDataBatch });
+        }
+
+        console.log('✅ Đã lưu báo cáo thành công (nền)');
+
     } catch (error) {
-      console.error('❌ Lỗi khi thanh toán:', error);
-      alert('Có lỗi khi thanh toán. Vui lòng thử lại!');
+        // XỬ LÝ LỖI: Nếu API thất bại, thông báo cho người dùng
+        console.error('❌ Lỗi nghiêm trọng khi lưu báo cáo (nền):', error);
+        // Hiển thị một thông báo toast/alert để người dùng biết rằng
+        // có lỗi xảy ra và họ nên kiểm tra lại.
+        alert('Thanh toán thành công nhưng có lỗi khi lưu báo cáo. Vui lòng liên hệ quản trị viên.');
     } finally {
-      setIsProcessingPayment(false);
+        // Đảm bảo trạng thái processing được tắt
+        setIsProcessingPayment(false);
     }
-  };
+};
 
   const handleCancelConfirmPayment = () => {
     setConfirmPaymentDialogOpen(false);
