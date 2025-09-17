@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { OrderItem } from '../types';
 import { orderAPI } from '../services/api';
 import { DISHES } from '../data/dishes';
@@ -13,229 +13,108 @@ export interface PendingChange {
   timestamp: number;
 }
 
-export interface PendingOrdersState {
-  [tableId: number]: {
-    [dishId: string]: PendingChange;
-  };
-}
+export type PendingMap = Record<number, PendingChange[]>;
 
 export const usePendingOrders = () => {
-  const [pendingChanges, setPendingChanges] = useState<PendingOrdersState>({});
+  const [pendingChanges, setPendingChanges] = useState<PendingMap>({});
   const currentTableRef = useRef<number | null>(null);
 
-  // Helper function to convert dishId to dishName
-  const getDishNameById = (dishId: string): string => {
-    const dish = DISHES.find(d => d.id === dishId);
-    return dish ? dish.name : dishId; // Fallback to dishId if not found
-  };
+  const setCurrentTable = useCallback((tableId: number) => {
+    currentTableRef.current = tableId;
+  }, []);
 
-  // Lưu tất cả pending changes của một bàn
-  const savePendingChanges = useCallback(async (tableId: number) => {
-    const tablePendingChanges = pendingChanges[tableId];
-    if (!tablePendingChanges || Object.keys(tablePendingChanges).length === 0) {
-      return;
-    }
-
-    try {
-      // Group changes by type để tối ưu request
-      const changes = Object.values(tablePendingChanges);
-      console.log(`🔄 Saving ${changes.length} pending changes for table ${tableId}:`, changes);
-
-      // Sắp xếp theo thứ tự: remove -> add -> note
-      // Không xử lý update riêng vì đã merge vào add hoặc backend tự handle
-      const removeChanges = changes.filter(c => c.type === 'remove');
-      const addChanges = changes.filter(c => c.type === 'add');
-      const updateChanges = changes.filter(c => c.type === 'update');
-      const noteChanges = changes.filter(c => c.type === 'note');
-
-      // Xử lý từng loại thay đổi theo thứ tự
-      const allPromises: Promise<any>[] = [];
-
-      // 1. Remove orders first
-      if (removeChanges.length > 0) {
-        removeChanges.forEach(change => {
-          const dishName = getDishNameById(change.dishId);
-          console.log(`🗑️ Removing: Table ${tableId}, Dish: ${dishName}`);
-          allPromises.push(
-            orderAPI.deleteOrder(tableId, dishName).catch(error => {
-              console.error(`Failed to remove ${dishName}:`, error);
-              // Don't throw, continue with other operations
-              return null;
-            })
-          );
-        });
-      }
-
-      // 2. Add new orders (backend sẽ tự tạo mới hoặc update quantity nếu đã tồn tại)
-      if (addChanges.length > 0) {
-        addChanges.forEach(change => {
-          if (change.orderItem) {
-            const now = new Date();
-            console.log(`➕ Adding: Table ${tableId}, Dish: ${change.orderItem.dish.name}, Qty: ${change.orderItem.quantity}`);
-            allPromises.push(
-              orderAPI.addOrder({
-                table_id: tableId,
-                dish_name: change.orderItem.dish.name,
-                quantity: change.orderItem.quantity,
-                date: now.toISOString().split('T')[0],
-                time: now.toTimeString().split(' ')[0],
-                note: change.orderItem.note || ''
-              }).catch(error => {
-                console.error(`Failed to add ${change.orderItem?.dish.name}:`, error);
-                return null;
-              })
-            );
-          }
-        });
-      }
-
-      // 3. Handle update operations (cho những món chưa có add pending)
-      if (updateChanges.length > 0) {
-        updateChanges.forEach(change => {
-          // Chỉ xử lý update nếu không có add change cho cùng dish
-          const hasAddChange = addChanges.some(addChange => addChange.dishId === change.dishId);
-          if (!hasAddChange && change.quantity !== undefined) {
-            const dishName = getDishNameById(change.dishId);
-            console.log(`🔢 Updating quantity: Table ${tableId}, Dish: ${dishName}, Qty: ${change.quantity}`);
-            allPromises.push(
-              orderAPI.updateOrder(tableId, dishName, change.quantity).catch(error => {
-                console.error(`Failed to update quantity for ${dishName}:`, error);
-                return null;
-              })
-            );
-          }
-        });
-      }
-
-      // 4. Update notes
-      if (noteChanges.length > 0) {
-        noteChanges.forEach(change => {
-          if (change.note !== undefined) {
-            const dishName = getDishNameById(change.dishId);
-            console.log(`📝 Updating note: Table ${tableId}, Dish: ${dishName}, Note: ${change.note}`);
-            allPromises.push(
-              orderAPI.updateNote(tableId, dishName, change.note).catch(error => {
-                console.error(`Failed to update note for ${dishName}:`, error);
-                return null;
-              })
-            );
-          }
-        });
-      }
-
-      // Execute all promises and wait for completion
-      const results = await Promise.allSettled(allPromises);
-      
-      // Count successful operations
-      const successCount = results.filter(result => result.status === 'fulfilled' && result.value !== null).length;
-      const failedCount = results.length - successCount;
-
-      if (failedCount > 0) {
-        console.warn(`⚠️ ${failedCount} operations failed out of ${results.length} for table ${tableId}`);
-      }
-
-      // Only clear pending changes if at least some operations succeeded
-      if (successCount > 0) {
-        setPendingChanges(prev => ({
-          ...prev,
-          [tableId]: {}
-        }));
-        console.log(`✅ Saved ${successCount} changes for table ${tableId}`);
-      } else {
-        console.error(`❌ All operations failed for table ${tableId}, keeping pending changes`);
-        throw new Error(`All operations failed for table ${tableId}`);
-      }
-
-    } catch (error) {
-      console.error('❌ Error saving pending changes:', error);
-      throw error; // Re-throw để caller có thể xử lý
-    }
-  }, [pendingChanges]);
-
-  // Thêm hoặc cập nhật pending change - CHỈ LƯU TẠM, KHÔNG AUTO-SAVE
-  const addPendingChange = useCallback((change: Omit<PendingChange, 'timestamp'>) => {
-    const pendingChange: PendingChange = {
-      ...change,
-      timestamp: Date.now()
-    };
-
+  const addPendingChange = useCallback((change: PendingChange) => {
     setPendingChanges(prev => {
-      const newState = {
-        ...prev,
-        [change.tableId]: {
-          ...prev[change.tableId],
-          [change.dishId]: pendingChange
-        }
-      };
-      
-      console.log(`📝 Added pending change for table ${change.tableId}, dish ${change.dishId}, type: ${change.type}`);
-      console.log(`📊 Total pending changes for table ${change.tableId}:`, Object.keys(newState[change.tableId]).length);
-      
-      return newState;
+      const list = prev[change.tableId] ? [...prev[change.tableId]] : [];
+      const ts = change.timestamp ?? Date.now();
+      list.push({ ...change, timestamp: ts });
+      return { ...prev, [change.tableId]: list };
     });
   }, []);
 
-  // Lưu tất cả changes khi chuyển bàn
-  const saveAllPendingChanges = useCallback(async () => {
-    const tableIds = Object.keys(pendingChanges).map(Number);
-    const savePromises = tableIds.map(tableId => savePendingChanges(tableId));
-    
-    try {
-      await Promise.all(savePromises);
-    } catch (error) {
-      console.error('Error saving all pending changes:', error);
+
+  const getPendingChangesCount = useCallback(
+    (tableId: number) => (pendingChanges[tableId] || []).length,
+    [pendingChanges]
+  );
+
+  const hasPendingChanges = useCallback(
+    (tableId: number) => getPendingChangesCount(tableId) > 0,
+    [getPendingChangesCount]
+  );
+
+  // Lưu mọi thay đổi của 1 bàn
+  const savePendingChanges = useCallback(async (tableId: number) => {
+    const changes = pendingChanges[tableId] || [];
+    if (changes.length === 0) return { ok: true };
+
+    console.log(`🔄 Saving ${changes.length} pending changes for table ${tableId}`, changes);
+
+    // Gom theo dishId
+    const groups = new Map<string, PendingChange[]>();
+    for (const ch of changes) {
+      const arr = groups.get(ch.dishId) || [];
+      arr.push(ch);
+      groups.set(ch.dishId, arr);
     }
-  }, [pendingChanges, savePendingChanges]);
 
-  // Theo dõi thay đổi bàn hiện tại
-  const setCurrentTable = useCallback((tableId: number | null) => {
-    const previousTable = currentTableRef.current;
-    console.log(`🔄 setCurrentTable: ${previousTable} -> ${tableId}`);
-    
-    currentTableRef.current = tableId;
+    const tasks = Array.from(groups.entries()).map(async ([dishId, chs]) => {
+      // Nếu có remove -> xóa và bỏ qua các thay đổi khác
+      if (chs.some(c => c.type === 'remove')) {
+        const d = DISHES.find(d => String(d.id) === String(dishId));
+        const dishName = d?.name || dishId;
+        await orderAPI.deleteOrder(tableId, dishName);
+        return;
+      }
 
-    // Nếu chuyển từ bàn này sang bàn khác, lưu pending changes của bàn cũ
-    if (previousTable !== null && previousTable !== tableId) {
-      console.log(`💾 Auto-saving pending changes for previous table ${previousTable}`);
-      savePendingChanges(previousTable);
+      // Lấy quantity cuối cùng
+      const qtyChange = chs
+        .filter(c => c.type === 'add' || c.type === 'update')
+        .sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
+        .pop();
+      const qty = qtyChange?.quantity ?? qtyChange?.orderItem?.quantity ?? 1;
+
+      // Lấy note cuối cùng
+      const noteChange = chs
+        .filter(c => c.type === 'note' || typeof c.orderItem?.note === 'string')
+        .sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
+        .pop();
+      const note = (noteChange?.note ?? noteChange?.orderItem?.note ?? '').trim();
+
+      // Map dishId -> dishName cho BE route mới (body nhận dish_name)
+      const dish = DISHES.find(d => String(d.id) === String(dishId));
+      const dishName = dish?.name || dishId;
+
+      // Upsert 1 lần: tạo mới nếu chưa có, nếu đã có thì cập nhật qty + note
+      await orderAPI.createItem(tableId, dishName, qty, note);
+    });
+
+    const results = await Promise.allSettled(tasks);
+    const failed = results.filter(r => r.status === 'rejected').length;
+
+    if (failed === 0) {
+      setPendingChanges(prev => {
+        const clone = { ...prev };
+        delete clone[tableId];
+        return clone;
+      });
+      console.log(`✅ Saved all changes for table ${tableId}`);
+      return { ok: true };
     }
-  }, [savePendingChanges]);
 
-  // Lưu tất cả khi trước khi page unload
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      saveAllPendingChanges();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [saveAllPendingChanges]);
-
-  // Lưu thủ công cho bàn hiện tại
-  const saveCurrentTableChanges = useCallback(() => {
-    if (currentTableRef.current !== null) {
-      savePendingChanges(currentTableRef.current);
-    }
-  }, [savePendingChanges]);
-
-  // Get pending changes count for a table
-  const getPendingChangesCount = useCallback((tableId: number) => {
-    const count = Object.keys(pendingChanges[tableId] || {}).length;
-    console.log(`📊 getPendingChangesCount for table ${tableId}: ${count}`);
-    return count;
+    console.warn(`⚠️ ${failed} operation(s) failed for table ${tableId}`);
+    return { ok: false, failed };
   }, [pendingChanges]);
 
-  // Check if there are any pending changes
-  const hasPendingChanges = useCallback((tableId?: number) => {
-    if (tableId) {
-      return getPendingChangesCount(tableId) > 0;
-    }
-    return Object.values(pendingChanges).some(tableChanges => 
-      Object.keys(tableChanges).length > 0
-    );
-  }, [pendingChanges, getPendingChangesCount]);
+  const saveAllPendingChanges = useCallback(async () => {
+    const tableIds = Object.keys(pendingChanges).map(Number);
+    return Promise.all(tableIds.map(id => savePendingChanges(id)));
+  }, [pendingChanges, savePendingChanges]);
+
+  const saveCurrentTableChanges = useCallback(async () => {
+    if (currentTableRef.current == null) return { ok: true };
+    return savePendingChanges(currentTableRef.current);
+  }, [savePendingChanges]);
 
   return {
     pendingChanges,
@@ -245,6 +124,6 @@ export const usePendingOrders = () => {
     saveCurrentTableChanges,
     setCurrentTable,
     getPendingChangesCount,
-    hasPendingChanges
+    hasPendingChanges,
   };
 };

@@ -148,18 +148,16 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleTableSelect = useCallback((table: Table) => {
-    console.log(`🔄 Switching from table ${selectedTableId} to table ${table.id}`);
-    
-    // Lưu pending changes của bàn hiện tại trước khi chuyển
-    if (selectedTableId !== table.id) {
-      console.log(`💾 Auto-saving pending changes for table ${selectedTableId} before switching`);
-      setCurrentTable(table.id); // This triggers auto-save of previous table
+  const handleTableSelect = useCallback(async (table: Table) => {
+  if (selectedTableId !== table.id) {
+    if (hasPendingChanges(selectedTableId)) {
+      await savePendingChanges(selectedTableId); // flush pending -> gọi API
     }
-    
-    setSelectedTableId(table.id);
-    localStorage.setItem('selectedTableId', table.id.toString());
-  }, [setCurrentTable, selectedTableId]);
+    setCurrentTable(table.id);
+  }
+  setSelectedTableId(table.id);
+  localStorage.setItem('selectedTableId', String(table.id));
+}, [selectedTableId, hasPendingChanges, savePendingChanges, setCurrentTable]);
 
   // Thêm món mới - chỉ cập nhật local state và thêm vào pending
   const handleAddOrder = useCallback((tableId: number, orderItem: OrderItem) => {
@@ -190,7 +188,8 @@ const Home: React.FC = () => {
               type: 'add',
               tableId,
               dishId: orderItem.dish.id,
-              orderItem: { ...orderItem, quantity: newQuantity }
+              orderItem: { ...orderItem, quantity: newQuantity },
+              timestamp: Date.now(),
             });
           } else {
             // Món mới, thêm vào danh sách
@@ -202,7 +201,8 @@ const Home: React.FC = () => {
               type: 'add',
               tableId,
               dishId: orderItem.dish.id,
-              orderItem
+              orderItem,
+              timestamp: Date.now(),
             });
           }
           
@@ -240,7 +240,8 @@ const Home: React.FC = () => {
       addPendingChange({
         type: 'remove',
         tableId,
-        dishId
+        dishId,
+        timestamp: Date.now(),
       });
       return;
     }
@@ -270,7 +271,8 @@ const Home: React.FC = () => {
       type: 'update',
       tableId,
       dishId,
-      quantity: newQuantity
+      quantity: newQuantity,
+      timestamp: Date.now()
     });
   }, [addPendingChange]);
 
@@ -305,7 +307,8 @@ const Home: React.FC = () => {
       type: 'note',
       tableId,
       dishId,
-      note
+      note,
+      timestamp: Date.now()
     });
   }, [addPendingChange]);
 

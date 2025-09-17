@@ -1,90 +1,20 @@
-/* Print styles for thermal bill printing */
 @media print {
-  /* Hide everything except the bill */
-  body * {
-    visibility: hidden;
+  @page { size: 80mm auto; margin: 0; }
+  html, body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Ẩn mọi top-level trừ vùng in */
+  body > *:not(#print-area) { display: none !important; }
+
+  /* Vùng in */
+  #print-area {
+    position: fixed !important; top: 0; left: 0;
+    width: 72mm !important;            /* vùng in thực của giấy 80 */
+    margin: 0 !important; padding: 2mm !important;
+    background: #fff !important; color: #000 !important;
+    box-shadow: none !important; page-break-inside: avoid;
   }
-  
-  /* Show only the bill content */
-  .bill-print, .bill-print * {
-    visibility: visible;
-  }
-  
-  /* Position the bill at the top */
-  .bill-print {
-    position: absolute;
-    left: 0;
-    top: 0;
-    margin: 0 !important;
-    padding: 2mm !important;
-    width: 80mm !important;
-    background: white !important;
-  }
-  
-  /* Remove shadows and borders for printing */
-  .bill-print,
-  .bill-print * {
-    box-shadow: none !important;
-    border: none !important;
-    background: white !important;
-    color: black !important;
-  }
-  
-  /* Ensure proper font sizes for thermal printer */
-  .bill-print .bill-header {
-    font-size: 14px !important;
-    font-weight: bold !important;
-    text-align: center !important;
-    margin-bottom: 3mm !important;
-  }
-  
-  .bill-print .bill-info {
-    font-size: 10px !important;
-    margin-bottom: 2mm !important;
-  }
-  
-  .bill-print .bill-items {
-    font-size: 9px !important;
-    margin-bottom: 2mm !important;
-  }
-  
-  .bill-print .bill-total {
-    font-size: 11px !important;
-    font-weight: bold !important;
-    margin-top: 2mm !important;
-  }
-  
-  .bill-print .bill-footer {
-    font-size: 8px !important;
-    text-align: center !important;
-    margin-top: 3mm !important;
-  }
-  
-  /* QR Code image styles for printing */
-  .bill-print img {
-    max-width: 50px !important;
-    max-height: 50px !important;
-    margin: 1mm auto !important;
-    display: block !important;
-    border: 1px solid #ddd !important;
-    border-radius: 2px !important;
-  }
-  
-  /* Ensure dividers print correctly */
-  .bill-print hr,
-  .bill-print .MuiDivider-root {
-    border-top: 1px dashed black !important;
-    margin: 1mm 0 !important;
-  }
-  
-  /* Page settings */
-  @page {
-    size: 80mm auto;
-    margin: 0;
-  }
-  
-  /* Remove page breaks within bill */
-  .bill-print {
-    page-break-inside: avoid;
-  }
+
+  #print-area table { width:100% !important; border-collapse:collapse !important; table-layout:fixed !important; }
+  #print-area hr, #print-area .MuiDivider-root { border:0 !important; border-top:1px dashed #000 !important; margin:1mm 0 !important; }
+  #print-area img { width:50px !important; height:50px !important; display:block !important; margin:1mm auto !important; }
 }

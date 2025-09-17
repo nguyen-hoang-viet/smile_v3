@@ -3,12 +3,63 @@ from sqlalchemy.orm import Session
 from typing import List
 from urllib.parse import unquote
 from datetime import datetime
+from pydantic import BaseModel
+from sqlalchemy import func
 
 from app.database import get_db
 from app.models.models import Order
 from app.schemas.schemas import OrderResponse, OrderCreate, AddOrderRequest
 
 router = APIRouter()
+
+class NoteUpdate(BaseModel):
+    note: str = ""
+
+class ItemCreate(BaseModel):
+    dish_name: str
+    quantity: int = 1
+    note: str = ""
+
+@router.post("/table/{table_id}/item", response_model=OrderResponse)
+def create_item(table_id: int, data: ItemCreate, db: Session = Depends(get_db)):
+    """Create or update an order item with note in ONE transaction."""
+    name = data.dish_name.strip()
+
+    existing = (
+        db.query(Order)
+        .filter(
+            Order.table_id == table_id,
+            func.lower(func.trim(Order.dish_name)) == func.lower(func.trim(name)),
+        )
+        .first()
+    )
+
+    now_date = datetime.now().strftime("%Y-%m-%d")
+    now_time = datetime.now().strftime("%H:%M:%S")
+
+    if existing:
+        # upsert: cập nhật luôn số lượng + note
+        existing.quantity = data.quantity
+        if data.note is not None:
+            existing.note = data.note
+        existing.date = now_date
+        existing.time = now_time
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    db_order = Order(
+        table_id=table_id,
+        dish_name=name,
+        quantity=data.quantity,
+        note=data.note or "",
+        date=now_date,
+        time=now_time,
+    )
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+    return db_order
 
 # SỬA LỖI: Đã xóa dòng @router.get("") bị trùng lặp. Chỉ giữ lại một dòng.
 @router.get("/", response_model=List[OrderResponse])
@@ -65,6 +116,36 @@ def create_order(order_request: AddOrderRequest, db: Session = Depends(get_db)):
         db.rollback()
         print(f"Error creating/updating order: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error creating/updating order: {str(e)}")
+
+@router.put("/table/{table_id}/dish/{dish_name}/note")
+def update_order_note(
+    table_id: int,
+    dish_name: str,
+    note_data: NoteUpdate,
+    db: Session = Depends(get_db),
+):
+    decoded = unquote(dish_name)
+
+    # tìm món theo tên, bỏ khoảng trắng và không phân biệt hoa thường
+    order = (
+        db.query(Order)
+        .filter(
+            Order.table_id == table_id,
+            func.lower(func.trim(Order.dish_name)) == func.lower(func.trim(decoded)),
+        )
+        .first()
+    )
+    if not order:
+        # trả 404 thật, FE sẽ bỏ pending cho món không còn tồn tại
+        raise HTTPException(
+            status_code=404,
+            detail=f"Order not found for table {table_id} and dish '{decoded}'",
+        )
+
+    order.note = note_data.note or ""
+    db.commit()
+    db.refresh(order)
+    return {"message": "ok", "order_id": order.id, "note": order.note}
 
 @router.put("/table/{table_id}/dish/{dish_name}")
 def update_order_quantity(table_id: int, dish_name: str, quantity_data: dict, db: Session = Depends(get_db)):
@@ -158,32 +239,6 @@ def delete_all_orders(db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error deleting orders: {str(e)}")
-
-@router.put("/table/{table_id}/dish/{dish_name}/note")
-def update_order_note(table_id: int, dish_name: str, note_data: dict, db: Session = Depends(get_db)):
-    """Update order note for specific table and dish"""
-    # CẢI THIỆN: Đã làm gọn khối try...except
-    try:
-        decoded_dish_name = unquote(dish_name)
-        print(f"Updating note - Table: {table_id}, Dish: {decoded_dish_name}, Note: {note_data.get('note', '')}")
-        
-        order = db.query(Order).filter(
-            Order.table_id == table_id,
-            Order.dish_name == decoded_dish_name
-        ).first()
-        
-        if not order:
-            raise HTTPException(status_code=404, detail=f"Order not found for table {table_id} and dish '{decoded_dish_name}'")
-        
-        order.note = note_data.get('note', '')
-        db.commit()
-        db.refresh(order)
-        
-        return {"message": "Order note updated successfully", "order": order}
-    except Exception as e:
-        db.rollback()
-        print(f"Error updating order note: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error updating order note: {str(e)}")
 
 @router.delete("/{order_id}")
 def delete_order(order_id: int, db: Session = Depends(get_db)):

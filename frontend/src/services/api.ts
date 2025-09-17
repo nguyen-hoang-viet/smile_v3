@@ -28,6 +28,10 @@ export const orderAPI = {
   // Get all orders
   getAllOrders: (): Promise<{ data: OrderResponse[] }> => api.get('orders/'),
   
+  // Create order item
+  createItem: (tableId: number, dishName: string, quantity: number, note?: string) =>
+    api.post(`orders/table/${tableId}/item`, { dish_name: dishName, quantity, note: note ?? "" }),
+  
   // Add order to database
   addOrder: (orderData: OrderRequest): Promise<{ data: OrderResponse }> => 
     api.post('orders/', orderData),

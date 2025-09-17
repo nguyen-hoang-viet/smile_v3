@@ -41,6 +41,7 @@ const BillPrint: React.FC<BillPrintProps> = ({
 
     return (
         <Paper
+        id="print-area"
         className="bill-print"
         sx={{
             width: { xs: '100%', sm: '80mm' }, // Responsive width
