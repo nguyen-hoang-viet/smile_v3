@@ -131,7 +131,14 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
   };
 
   const handlePrintBill = () => {
-    window.print();
+    const printContent = document.getElementById('print-area');
+    if (!printContent) {
+      console.error('Không tìm thấy #print-area để in.');
+      alert('Không tìm thấy nội dung hóa đơn để in.');
+      return;
+    }
+    // Đảm bảo dialog đã render xong trước khi gọi print
+    requestAnimationFrame(() => window.print());
   };
 
   const handlePayment = () => {
@@ -338,7 +345,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
                 />
                 {hasPendingChanges && (
                   <Chip 
-                    label={isSavingPending ? "Đang lưu..." : `${pendingChangesCount} chưa lưu`}
+                    label={isSavingPending ? "Đang lưu..." : `chưa lưu`}
                     onClick={handleManualSave}
                     disabled={isSavingPending}
                     sx={{ 
