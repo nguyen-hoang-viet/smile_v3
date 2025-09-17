@@ -714,7 +714,7 @@ const OrderPanel: React.FC<OrderPanelProps> = ({
             maxWidth: isMobile ? '100%' : 'none'
           }}>
             <Box sx={{ 
-              transform: isMobile ? 'scale(1)' : 'scale(1.5)', 
+              transform: isMobile ? 'scale(1)' : 'scale(1)', 
               transformOrigin: 'top center',
               width: isMobile ? '100%' : 'auto',
               maxWidth: isMobile ? '100%' : 'none'
